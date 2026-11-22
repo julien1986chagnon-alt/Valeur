@@ -1,17 +1,16 @@
 import streamlit as st
 import pandas as pd
-import plotly.graph_objects as go
 import math
 
 st.set_page_config(
-    page_title="L'Échelle Juste — 20 Catégories, Calculatrice 4.10 & Modèle 3D",
+    page_title="L'Échelle Juste — 20 Catégories de Revenus & Calculatrice 4.10",
     page_icon="⚖️",
     layout="wide"
 )
 
 st.title("⚖️ L'Échelle Juste : L'Économie Proportionnelle")
 st.markdown(
-    "Un manuscrit interactif créé par **Julien Chagnon** (Bruxelles) où chaque dépense vitale représente **exactement le même effort (%)** "
+    "Un modèle créé par **Julien Chagnon** (Bruxelles) où chaque dépense vitale représente **exactement le même effort (%)** "
     "pour tout le monde, du minimex (400 €) jusqu'aux très hauts revenus (100 000 €)."
 )
 
@@ -115,11 +114,7 @@ for nom, rev in categories_revenus:
 df = pd.DataFrame(lignes)
 
 # --- ONGLETS POUR UNE LECTURE CLAIRE ---
-tab1, tab2, tab3 = st.tabs([
-    "📋 Tableau des 20 Catégories",
-    "🔍 Fiche Résumé par Catégorie",
-    "🧊 Modèle 3D Interactif"
-])
+tab1, tab2 = st.tabs(["📋 Tableau des 20 Catégories", "🔍 Fiche Résumé par Catégorie"])
 
 with tab1:
     st.subheader("Vue d'ensemble des 20 catégories de revenus (400 € → 100 000 €)")
@@ -130,7 +125,7 @@ with tab2:
     choix = st.selectbox(
         "Sélectionne une catégorie de revenu pour afficher sa fiche budget :",
         options=[f"{nom} — {rev:,} €".replace(",", " ") for nom, rev in categories_revenus],
-        index=3
+        index=3 # Par défaut sur 1 500 €
     )
     index_choisi = [f"{nom} — {rev:,} €".replace(",", " ") for nom, rev in categories_revenus].index(choix)
     nom_sel, rev_sel = categories_revenus[index_choisi]
@@ -153,45 +148,4 @@ with tab2:
         f"🍌 **Indice Banane (0,02 %) :** Avec ce revenu, une banane coûte **{fmt(arrondir_410(rev_sel * 0.0002, pas), pas)}** "
         f"(soit un pouvoir d'achat constant de **5 000 bananes/mois**, identique aux 19 autres catégories)."
     )
-
-with tab3:
-    st.subheader("🧊 Exploration en 3 Dimensions : Revenus × Postes × Coût (€)")
-    st.markdown("Fais pivoter, zoome et survole le relief 3D à la souris pour voir comment les coûts évoluent proportionnellement sur les 3 axes.")
-
-    postes_noms = [
-        "Loyer (30%)",
-        "Courses (20%)",
-        "Factures (15%)",
-        "Déplacements (10%)",
-        "Loisirs (10%)",
-        "Soins (8%)",
-        "Épargne (7%)"
-    ]
-    postes_taux = [0.30, 0.20, 0.15, 0.10, 0.10, 0.08, 0.07]
-    revenus_vals = [rev for _, rev in categories_revenus]
-
-    z_matrix = []
-    for rev in revenus_vals:
-        z_matrix.append([arrondir_410(rev * t, pas) for t in postes_taux])
-
-    fig = go.Figure(data=[go.Surface(
-        z=z_matrix,
-        x=postes_noms,
-        y=revenus_vals,
-        colorscale="Viridis",
-        colorbar=dict(title="Montant (€)")
-    )])
-
-    fig.update_layout(
-        title="Surface de L'Échelle Juste en 3D",
-        scene=dict(
-            xaxis_title="Poste Budgétaire",
-            yaxis_title="Revenu Mensuel (€)",
-            zaxis_title="Coût Proportionnel (€)",
-        ),
-        height=650,
-        margin=dict(l=0, r=0, b=0, t=40)
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
 
